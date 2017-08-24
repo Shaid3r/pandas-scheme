@@ -22,3 +22,7 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
+
+"""
+Pandas scheme for taurus core model.
+"""

@@ -23,35 +23,26 @@
 ##
 ##############################################################################
 
-from setuptools import setup, find_packages
-
-version = '0.0.1'
-description = 'pandas Taurus scheme'
-long_description = ''' pandas is the Taurus scheme for accessing files.
-It is at the initiation stage.'''
-license = 'LGPL'
-platforms = ['Linux', 'Windows']
+from taurus.external import unittest
 
 
-authors = 'ctgensoft'
-email = 'ctgensoft@cells.es'
-url = 'http://www.taurus-scada.org/en/stable/devel/core_tutorial.html'
+def get_suite():
+    # use the default shared TestLoader instance
+    test_loader = unittest.defaultTestLoader
+    # use the basic test runner that outputs to sys.stderr
+    test_runner = unittest.TextTestRunner()
+    # automatically discover all tests in the current dir of the form test*.py
+    # NOTE: only works for python 2.7 and later
+    test_suite = test_loader.discover('.')
+    return test_suite
 
-install_requires = ['taurus>=4.0.1',
-                    'pandas']
 
-setup(name='taurus-pandas-scheme',
-      version=version,
-      description=description,
-      long_description=long_description,
-      author=authors,
-      maintainer=authors,
-      maintainer_email=email,
-      url=url,
-      platforms=platforms,
-      license=license,
-      packages=find_packages(),
-      include_package_data=True,
-      install_requires=install_requires,
-      test_suite='pandas.test.testsuite.get_suite',
-      )
+def run():
+    runner = unittest.TextTestRunner(descriptions=True, verbosity=2)
+    suite = get_suite()
+    # run the test suite
+    return runner.run(suite)
+
+
+if __name__ == '__main__':
+    run()
