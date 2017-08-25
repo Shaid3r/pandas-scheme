@@ -23,14 +23,14 @@
 ##
 #############################################################################
 
-"""Tests for taurus.core.pandas.test.test_pdsvalidator..."""
+"""Tests for taurus.core.taurus_pandas.test.test_pdsvalidator..."""
 
 from taurus.external import unittest
 from taurus.core.test import (valid, invalid, names,
                               AbstractNameValidatorTestCase)
-from tpds.pdsvalidator import (PandasAuthorityNameValidator,
-                               PandasDeviceNameValidator,
-                               PandasAttributeNameValidator)
+from taurus_pandas.pdsvalidator import (PandasAuthorityNameValidator,
+                                        PandasDeviceNameValidator,
+                                        PandasAttributeNameValidator)
 
 
 @valid(name='pds://localhost')

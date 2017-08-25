@@ -27,7 +27,7 @@ from setuptools import setup, find_packages
 
 version = '0.0.1'
 description = 'pandas Taurus scheme'
-long_description = ''' pandas is the Taurus scheme for accessing files.
+long_description = '''taurus-pandas-scheme is the Taurus scheme for accessing files.
 It is at the initiation stage.'''
 license = 'LGPL'
 platforms = ['Linux', 'Windows']
