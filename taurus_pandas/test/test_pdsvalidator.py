@@ -102,48 +102,14 @@ class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
 # =========================================================================
 #  Tests for Pandas Attribute name validation
 # =========================================================================
-@valid(name='pds-csv:/path/to/file::["column0"]')  # Get column
-@valid(name='pds-csv:/path/to/file::["column0","column1",2]')  # Get 3 columns
-# Recognize format and get all data
-@valid(name='pds://localhost/path/to/file.csv::')
-# Column label should be inside brackets
-@invalid(name='pds-csv://localhost/path/to/file::"column0"')
-@valid(name='pds-xls:/path/to/file::')  # Get all data from 1-st sheet
-@valid(name='pds-xls:/path/to/file::"Sheet1"')  # Get all data from "Sheet1"
-# Get column "Col1" from "Sheet1"
-@valid(name='pds-xls:/path/to/file::"Sheet1";"Col1"')
-
-# @valid(name='pds-csv://localhost/path/to/file::"column0"|[x for x in range(3)]')
-# @valid(name='pds-csv://localhost/path/to/file::"column0"')
-# @valid(name='pds://localhost/path/to/file.csv::/"column0":')  # First column
-# @valid(name='pds:/path/to/file.csv::/0:')  # First column with index
-# @valid(name='pds:/path/to/file.csv::/:0')  # First row
-# @valid(name='pds:/path/to/file.csv::/"column0":0')  # First cell
-# # Multiple columns
-# @valid(name='pds:/path/to/file.csv::/"column0":;"column2:"')
-# # Multiple columns with indexes
-# @valid(name='pds:/path/to/file.csv::/0:;2:')
-# # Multiple columns mixed notation
-# @valid(name='pds:/path/to/file.csv::/"column0":;"column2"')
-# # Cross section (top left cell|bottom right cell)
-# @valid(name='pds:/path/to/file.csv::/"column0":3|"column2":7')
-# # Multiple cross sections
-# @valid(name='pds:/path/to/file.csv::'
-#             '/"column0":3|"column2":7;column0":3|"column2":7')
-# # First column from excel
-# @valid(name='pds:/path/to/file.xls::/Worksheet/0:')  # First column with index
-# First column without colon
-# @invalid(name='pds:/path/to/file.csv::/"column0"')
-# # Multiple columns with indexes without colons
-# @invalid(name='pds:/path/to/file.csv::/0;2')
-# # Multiple columns without colons
-# @invalid(name='pds:/path/to/file.csv::/"column0";"column2"')
-# # Has extra final ";"
-# @invalid(name='pds:/path/to/file.csv::/"column0":;"')
-# @invalid(name='pds:/path/to/file.csv::')  # Empty attribute
-# @names(name='pds:/path/to/file.csv::/"column0":',
-#        out=('pds:/path/to/file.csv::/"column0":',
-#             '/path/to/file.csv::/"column0":', '/"column0:"'))
+@valid(name='pds-xls:/path/to/file::')  # Get all columns from 1-st sheet
+@valid(name='pds-xls:/path/to/file::"Sheet"')  # Get all columns from "Sheet"
+@valid(name='pds-xls:/path/to/file::"Sheet",["column1"]')  # Get 1 column
+# Get multiple columns
+@valid(name='pds-xls:/path/to/file::"Sheet",["column1","column2"]')
+@valid(name='pds-xls:/path/to/file::"Sheet",,[0]')  # Get row 0, all columns
+# Get 7 rows starting with 0, all columns, 1-st sheet
+@valid(name='pds-xls:/path/to/file::,,[0,7]')
 class PandasAttrValidatorTestCase(AbstractNameValidatorTestCase,
                                   unittest.TestCase):
     validator = PandasAttributeNameValidator
