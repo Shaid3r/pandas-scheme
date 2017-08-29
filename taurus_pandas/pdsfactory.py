@@ -38,7 +38,8 @@ __docformat__ = "restructuredtext"
 
 
 class PandasFactory(Singleton, TaurusFactory, Logger):
-    schemes = ("pds", "pandas")
+    schemes = ("pds", "pds-csv", "pds-xls")
+    DEFAULT_AUTHORITY = '//localhost'
 
     def init(self, *args, **kwargs):
         """Singleton instance initialization.
