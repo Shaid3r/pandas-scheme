@@ -27,18 +27,26 @@
 psdfactory.py:
 """
 
-from taurus.core.util.singleton import Singleton
-from taurus.core.util.log import Logger
+from taurus.core.taurusbasetypes import TaurusElementType
 from taurus.core.taurusfactory import TaurusFactory
-from taurus.core.taurusexception import TaurusException
+from taurus.core.util.log import Logger
+from taurus.core.util.singleton import Singleton
+from taurus_pandas.pdsattribute import PandasAttribute
+from taurus_pandas.pdsauthority import PandasAuthority
+from taurus_pandas.pdsdevice import PandasDevice
 
-__all__ = []
+__all__ = ["PandasFactory"]
 
 __docformat__ = "restructuredtext"
 
 
 class PandasFactory(Singleton, TaurusFactory, Logger):
     schemes = ("pds", "pds-csv", "pds-xls")
+    elementTypesMap = {TaurusElementType.Authority: PandasAuthority,
+                       TaurusElementType.Device: PandasDevice,
+                       TaurusElementType.Attribute: PandasAttribute
+                       }
+
     DEFAULT_AUTHORITY = '//localhost'
 
     def init(self, *args, **kwargs):
@@ -48,12 +56,14 @@ class PandasFactory(Singleton, TaurusFactory, Logger):
         self.call__init__(Logger, name)
         self.call__init__(TaurusFactory)
 
-    def getDeviceNameValidator(self):
-        pass
-
     def getAuthorityNameValidator(self):
-        pass
+        import pdsvalidator
+        return pdsvalidator.PandasAuthorityNameValidator()
+
+    def getDeviceNameValidator(self):
+        import pdsvalidator
+        return pdsvalidator.PandasDeviceNameValidator()
 
     def getAttributeNameValidator(self):
-        pass
-
+        import pdsvalidator
+        return pdsvalidator.PandasAttributeNameValidator()

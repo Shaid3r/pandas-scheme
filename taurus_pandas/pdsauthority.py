@@ -26,9 +26,9 @@
 __all__ = ["PandasAuthority"]
 
 from taurus.core.taurusauthority import TaurusAuthority
-from taurus import Factory
-
+# from taurus_pandas.pdsfactory import PandasFactory
 
 class PandasAuthority(TaurusAuthority):
     _scheme = 'pds'
+    # _factory = PandasFactory
 

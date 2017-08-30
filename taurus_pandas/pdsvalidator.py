@@ -22,10 +22,11 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
-from os import path
 
 __all__ = ["PandasAuthorityNameValidator", "PandasDeviceNameValidator",
            "PandasAttributeNameValidator"]
+
+from os import path
 
 from taurus.core.taurusvalidator import (TaurusAttributeNameValidator,
                                          TaurusDeviceNameValidator,
@@ -37,6 +38,7 @@ class PandasAuthorityNameValidator(TaurusAuthorityNameValidator):
     """A validator for Authority names in the pandas scheme.
         For now it is a dummy one, allowing only //localhost
         """
+    # Should scheme be created automatically from PandasFactory.schemes?
     scheme = '(pds)|(pds-csv)|(pds-xls)'
     authority = '//localhost'
     path = '(?!)'
@@ -53,10 +55,6 @@ class PandasDeviceNameValidator(TaurusDeviceNameValidator):
            r'([\w.\-]+/)*[\w.\-]+))'
     query = '(?!)'
     fragment = '(?!)'
-
-    def __init__(self):
-        TaurusDeviceNameValidator.__init__(self)
-        # print(self.namePattern)
 
     def getNames(self, fullname, factory=None):
         """reimplemented from :class:`TaurusDeviceNameValidator`."""
@@ -79,5 +77,36 @@ class PandasDeviceNameValidator(TaurusDeviceNameValidator):
 
 
 class PandasAttributeNameValidator(TaurusAttributeNameValidator):
-    pass
+    """A validator for Attribute names in the pandas scheme."""
+    scheme = PandasAuthorityNameValidator.scheme
+    authority = PandasAuthorityNameValidator.authority
+    path = r'%s::(?P<attrname>[\w.\-/\[\]"\',]*)' % PandasDeviceNameValidator.path
+    query = '(?!)'
+    fragment = '(?!)'
 
+    # hardcoded or not?
+    # m = {
+    #     'pds-csv': CSVHandler,
+    #     'pds-xls': XLSHandler,
+    # }
+
+    def getUriGroups(self, name, strict=None):
+        groups = TaurusAttributeNameValidator.getUriGroups(self, name, strict)
+        attrname = groups.get('attrname', None)
+
+        if attrname is None:
+            return None
+
+        if attrname != '':
+            try:
+                import ast
+                ast.literal_eval(attrname)
+            except:
+                return None
+        return groups
+
+    # def getHandler(self, fullname_or_scheme):
+    #     getScheme
+    #     handler = m.get(scheme, None)
+    #     if handler is None:
+    #         raise TaurusException("Scheme {} is not supported.".format(scheme))

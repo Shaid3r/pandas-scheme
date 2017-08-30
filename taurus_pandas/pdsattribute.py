@@ -23,32 +23,85 @@
 ##
 #############################################################################
 
-from taurus.core.taurusattribute import TaurusAttribute
-
 __all__ = ["PandasAttribute"]
+
+from taurus.core import TaurusException, TaurusAttrValue, TaurusTimeVal
+from taurus.core.taurusattribute import TaurusAttribute
+from taurus.external.pint import Quantity
 
 
 class PandasAttribute(TaurusAttribute):
-    def _subscribeEvents(self):
-        pass
+    """Store DataFrame object"""
+    handler = None
 
-    def isUsingEvents(self):
-        pass
+    def __init__(self, name, parent, **kwargs):
+        TaurusAttribute.__init__(self, name, parent, **kwargs)
+        v = self.getNameValidator()
 
-    def poll(self):
-        pass
+        self.handler = v.getHandler(name)
 
-    def _unsubscribeEvents(self):
-        pass
+        # handler._attr_name
+        # last_value
 
     def read(self, cache=True):
-        pass
+        """Read file, gets df, set rvalue"""
+        if cache and self._last_value is not None:
+            return self._last_value
+
+        # dev = self.getParentObj()
+        # handler.setFilename(dev.filename)
+
+        value = TaurusAttrValue()
+        value.rvalue = "sth"
+        # value.rvalue = handler.getValue()
+        value.time = TaurusTimeVal.now()
+        self._last_value = value
+
+        return value
+
+    # def nextChunk(self):
+    #     pass
+    #
+    # def setChunkSize(self, size):
+    #     handler.setChunkSize(size)
 
     def decode(self, attr_value):
-        pass
-
-    def write(self, value, with_read=True):
+        # return handler.decode()
+        # value = Quantity(attr_value_np, units=units)
+        # return value
         pass
 
     def encode(self, value):
+        # TODO: implement it if you want to support writable attributes
+        return value
+
+    def poll(self):
+        # v = self.read(cache=False)
+        # self.fireEvent(TaurusEventType.Periodic, v)
         pass
+
+    def isWritable(self, cache=True):
+        # TODO: implement it if you want to support writable attributes
+        return False
+
+    def write(self, value, with_read=True):
+        # TODO: implement it if you want to support writable attributes
+        raise TaurusException('Attributes are read-only')
+
+    def isUsingEvents(self):
+        # TODO: implement it if you want to support writable attributes
+        return False
+
+    def _subscribeEvents(self):
+        # TODO: implement it if you want to support writable attributes
+        pass
+
+    def _unsubscribeEvents(self):
+        # TODO: implement it if you want to support writable attributes
+        pass
+
+if __name__ == "__main__":
+    from taurus_pandas.pdsfactory import PandasFactory
+    a = PandasFactory().getAttribute("pds-csv:/path/to/file::")
+
+    a.read()

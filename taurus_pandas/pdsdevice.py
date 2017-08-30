@@ -26,7 +26,13 @@
 __all__ = ["PandasDevice"]
 
 from taurus.core.taurusdevice import TaurusDevice
+# from taurus_pandas.pdsfactory import PandasFactory
 
 
 class PandasDevice(TaurusDevice):
-    pass
+    _scheme = 'pds'
+    # _factory = PandasFactory  # circular dependency
+
+    def __init__(self, name, **kwargs):
+        TaurusDevice.__init__(self, name, **kwargs)
+        # self.filename
