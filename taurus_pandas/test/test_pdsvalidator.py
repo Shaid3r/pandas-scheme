@@ -102,14 +102,25 @@ class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
 # =========================================================================
 #  Tests for Pandas Attribute name validation
 # =========================================================================
+# CSV tests
+@valid(name='pds-csv:/path/to/file::')  # Get all columns
+@valid(name='pds-csv:/path/to/file::["column1"]')  # Get 1 column
+# Get multiple columns
+@valid(name='pds-csv:/path/to/file::["column1","column2"]')
+@valid(name='pds-csv:/path/to/file::[],[0]')  # Get row 0, all columns
+# Get 7 rows starting with 0, all columns
+@valid(name='pds-csv:/path/to/file::[],[0,7]')
+# =========================================================================
+# XLS tests
 @valid(name='pds-xls:/path/to/file::')  # Get all columns from 1-st sheet
 @valid(name='pds-xls:/path/to/file::"Sheet"')  # Get all columns from "Sheet"
 @valid(name='pds-xls:/path/to/file::"Sheet",["column1"]')  # Get 1 column
 # Get multiple columns
 @valid(name='pds-xls:/path/to/file::"Sheet",["column1","column2"]')
-@valid(name='pds-xls:/path/to/file::"Sheet",,[0]')  # Get row 0, all columns
+@valid(name='pds-xls:/path/to/file::"Sheet",[],[0]')  # Get row 0, all columns
 # Get 7 rows starting with 0, all columns, 1-st sheet
-@valid(name='pds-xls:/path/to/file::,,[0,7]')
+@valid(name='pds-xls:/path/to/file::"",[],[0,7]')
+@invalid(name='pds-xls:/path/to/file::",[],[0,7]')
 class PandasAttrValidatorTestCase(AbstractNameValidatorTestCase,
                                   unittest.TestCase):
     validator = PandasAttributeNameValidator
