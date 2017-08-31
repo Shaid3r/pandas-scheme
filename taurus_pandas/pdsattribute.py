@@ -28,6 +28,7 @@ __all__ = ["PandasAttribute"]
 from taurus.core import TaurusException, TaurusAttrValue, TaurusTimeVal
 from taurus.core.taurusattribute import TaurusAttribute
 from taurus.external.pint import Quantity
+from taurus_pandas.pdshandlers import schemesMap
 
 
 class PandasAttribute(TaurusAttribute):
@@ -38,8 +39,12 @@ class PandasAttribute(TaurusAttribute):
         TaurusAttribute.__init__(self, name, parent, **kwargs)
         v = self.getNameValidator()
 
-        self.handler = v.getHandler(name)
+        v.getUriGroups(name)
+        groups = v.getUriGroups(name)
 
+        self.handler = schemesMap[groups['scheme']]()
+
+        print self.handler
         # handler._attr_name
         # last_value
 

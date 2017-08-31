@@ -32,14 +32,14 @@ from taurus.core.taurusvalidator import (TaurusAttributeNameValidator,
                                          TaurusDeviceNameValidator,
                                          TaurusAuthorityNameValidator)
 from taurus_pandas.pdsfactory import PandasFactory
+from taurus_pandas.pdshandlers import schemesMap
 
 
 class PandasAuthorityNameValidator(TaurusAuthorityNameValidator):
     """A validator for Authority names in the pandas scheme.
         For now it is a dummy one, allowing only //localhost
         """
-    # Should scheme be created automatically from PandasFactory.schemes?
-    scheme = '(pds)|(pds-csv)|(pds-xls)'
+    scheme = "|".join(["(" + x + ")" for x in schemesMap.keys()])
     authority = '//localhost'
     path = '(?!)'
     query = '(?!)'
@@ -75,6 +75,26 @@ class PandasDeviceNameValidator(TaurusDeviceNameValidator):
 
         return complete, normal, short
 
+    def getUriGroups(self, name, strict=None):
+        groups = TaurusDeviceNameValidator.getUriGroups(self, name, strict)
+
+        try:
+            scheme = groups.get('scheme')
+        except Exception:
+            return None
+
+        if scheme != 'pds':
+            return groups
+
+        import os
+        _, ext = os.path.splitext(groups.get('devname'))
+
+        for handler in schemesMap.keys():
+            if schemesMap[handler].canHandle(ext):
+                groups['scheme'] = handler
+                return groups
+        return None
+
 
 class PandasAttributeNameValidator(TaurusAttributeNameValidator):
     """A validator for Attribute names in the pandas scheme."""
@@ -84,15 +104,39 @@ class PandasAttributeNameValidator(TaurusAttributeNameValidator):
     query = '(?!)'
     fragment = '(?!)'
 
-    # hardcoded or not?
-    # m = {
-    #     'pds-csv': CSVHandler,
-    #     'pds-xls': XLSHandler,
-    # }
+    def getNames(self, fullname, factory=None, fragment=False):
+        """reimplemented from :class:`TaurusAttributeNameValidator`.
+        """
+        groups = self.getUriGroups(fullname)
+
+        try:
+            scheme = groups.get('scheme')
+        except:
+            return None
+
+        if scheme == 'pds':
+            import os
+            _, ext = os.path.splitext(groups.get('devname'))
+
+            for handler in schemesMap.keys():
+                if schemesMap[handler].canHandle(ext):
+                    groups['scheme'] = handler
+                    break
+
+        authority = groups.get('authority')
+        if authority is None:
+            f_or_fklass = factory or PandasFactory
+            groups['authority'] = f_or_fklass.DEFAULT_AUTHORITY
+
+        complete = '%(scheme)s:%(authority)s%(devname)s::%(attrname)s' % groups
+        normal = '%(devname)s::%(attrname)s' % groups
+        short = '%(attrname)s' % groups
+
+        return complete, normal, short
 
     def getUriGroups(self, name, strict=None):
         groups = TaurusAttributeNameValidator.getUriGroups(self, name, strict)
-        attrname = groups.get('attrname', None)
+        attrname = groups.get('attrname')
 
         if attrname is None:
             return None
@@ -104,9 +148,3 @@ class PandasAttributeNameValidator(TaurusAttributeNameValidator):
             except:
                 return None
         return groups
-
-    # def getHandler(self, fullname_or_scheme):
-    #     getScheme
-    #     handler = m.get(scheme, None)
-    #     if handler is None:
-    #         raise TaurusException("Scheme {} is not supported.".format(scheme))

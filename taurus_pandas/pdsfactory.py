@@ -34,6 +34,7 @@ from taurus.core.util.singleton import Singleton
 from taurus_pandas.pdsattribute import PandasAttribute
 from taurus_pandas.pdsauthority import PandasAuthority
 from taurus_pandas.pdsdevice import PandasDevice
+from taurus_pandas.pdshandlers import schemesMap
 
 __all__ = ["PandasFactory"]
 
@@ -41,7 +42,7 @@ __docformat__ = "restructuredtext"
 
 
 class PandasFactory(Singleton, TaurusFactory, Logger):
-    schemes = ("pds", "pds-csv", "pds-xls")
+    schemes = schemesMap.keys()
     elementTypesMap = {TaurusElementType.Authority: PandasAuthority,
                        TaurusElementType.Device: PandasDevice,
                        TaurusElementType.Attribute: PandasAttribute

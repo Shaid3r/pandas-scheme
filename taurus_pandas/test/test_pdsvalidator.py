@@ -71,6 +71,7 @@ class PandasAuthValidatorTestCase(AbstractNameValidatorTestCase,
 # @valid(name='pds:/pa\ th/to/file.csv')
 @valid(name='pds:/C:/Path/To/File.csv')
 @valid(name='pds:/../file.csv')
+@invalid(name='pds:/path/to/file')  # Can't recognize extension
 @invalid(name='pds:path/to/file.csv')  # Missing first "/"
 @invalid(name='pds:../file.csv')  # Missing first "/"
 @invalid(name='pds:/pa th/to/file.csv')  # White spaces are not accepted
@@ -80,19 +81,19 @@ class PandasAuthValidatorTestCase(AbstractNameValidatorTestCase,
 @invalid(name='pds://path/to/file.csv')  # Path cannot start with "//"
 @invalid(name='pds:/1:/to/file.csv')  # Windows unit must be a letter
 @names(name='pds:/path/to/file.csv',
-       out=('pds://localhost/path/to/file.csv', '/path/to/file.csv',
+       out=('pds-csv://localhost/path/to/file.csv', '/path/to/file.csv',
             'file.csv'))
 @names(name='pds:/a/../c/file.csv',
-       out=('pds://localhost/c/file.csv', '/c/file.csv',
+       out=('pds-csv://localhost/c/file.csv', '/c/file.csv',
             'file.csv'))
 @names(name='pds:/../file.csv',
-       out=('pds://localhost/file.csv', '/file.csv',
+       out=('pds-csv://localhost/file.csv', '/file.csv',
             'file.csv'))
 @names(name='pds:/foo/./file.csv',
-       out=('pds://localhost/foo/file.csv', '/foo/file.csv',
+       out=('pds-csv://localhost/foo/file.csv', '/foo/file.csv',
             'file.csv'))
 @names(name='pds:/foo/.../file.csv',
-       out=('pds://localhost/foo/.../file.csv', '/foo/.../file.csv',
+       out=('pds-csv://localhost/foo/.../file.csv', '/foo/.../file.csv',
             'file.csv'))
 class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
                                  unittest.TestCase):
@@ -103,16 +104,19 @@ class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
 #  Tests for Pandas Attribute name validation
 # =========================================================================
 # CSV tests
-@valid(name='pds-csv:/path/to/file::')  # Get all columns
+@valid(name='pds:/path/to/file.csv::')  # Get all columns
 @valid(name='pds-csv:/path/to/file::["column1"]')  # Get 1 column
 # Get multiple columns
 @valid(name='pds-csv:/path/to/file::["column1","column2"]')
 @valid(name='pds-csv:/path/to/file::[],[0]')  # Get row 0, all columns
 # Get 7 rows starting with 0, all columns
 @valid(name='pds-csv:/path/to/file::[],[0,7]')
+@names(name='pds:/path/to/file.csv::["column1"]',
+       out=('pds-csv://localhost/path/to/file.csv::["column1"]',
+            '/path/to/file.csv::["column1"]', '["column1"]'))
 # =========================================================================
 # XLS tests
-@valid(name='pds-xls:/path/to/file::')  # Get all columns from 1-st sheet
+@valid(name='pds:/path/to/file.xls::')  # Get all columns from 1-st sheet
 @valid(name='pds-xls:/path/to/file::"Sheet"')  # Get all columns from "Sheet"
 @valid(name='pds-xls:/path/to/file::"Sheet",["column1"]')  # Get 1 column
 # Get multiple columns
@@ -120,7 +124,15 @@ class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
 @valid(name='pds-xls:/path/to/file::"Sheet",[],[0]')  # Get row 0, all columns
 # Get 7 rows starting with 0, all columns, 1-st sheet
 @valid(name='pds-xls:/path/to/file::"",[],[0,7]')
+@valid(name='pds-xls:/path/to/file::\'\',[],[0,7]')
 @invalid(name='pds-xls:/path/to/file::",[],[0,7]')
+@names(name='pds-xls:/path/to/file::',
+       out=('pds-xls://localhost/path/to/file::', '/path/to/file::', ''))
+@names(name='pds:/path/to/file.xls::"Sheet"',
+       out=('pds-xls://localhost/path/to/file.xls::"Sheet"',
+            '/path/to/file.xls::"Sheet"', '"Sheet"'))
+@names(name='pds:/path/to/file.xlsx::',
+       out=('pds-xls://localhost/path/to/file.xlsx::', '/path/to/file.xlsx::', ''))
 class PandasAttrValidatorTestCase(AbstractNameValidatorTestCase,
                                   unittest.TestCase):
     validator = PandasAttributeNameValidator
