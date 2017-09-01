@@ -39,6 +39,7 @@ from taurus_pandas.pdsvalidator import (PandasAuthorityNameValidator,
 @valid(name='pds://localhost')
 @valid(name='pds-csv://localhost')
 @valid(name='pds-xls://localhost')
+@valid(name='//localhost')  # Implicit scheme
 # @valid(name='pds-hdf://localhost')  # TODO later
 @invalid(name='pds:')
 @names(name='pds://localhost',
@@ -71,6 +72,7 @@ class PandasAuthValidatorTestCase(AbstractNameValidatorTestCase,
 # @valid(name='pds:/pa\ th/to/file.csv')
 @valid(name='pds:/C:/Path/To/File.csv')
 @valid(name='pds:/../file.csv')
+@invalid(name='/path/to/file.csv')  # Implicit scheme
 @invalid(name='pds:/path/to/file')  # Can't recognize extension
 @invalid(name='pds:path/to/file.csv')  # Missing first "/"
 @invalid(name='pds:../file.csv')  # Missing first "/"
@@ -80,6 +82,7 @@ class PandasAuthValidatorTestCase(AbstractNameValidatorTestCase,
 @invalid(name='pds:/path/to/file.csv::/"column0":')  # It is an attr URI
 @invalid(name='pds://path/to/file.csv')  # Path cannot start with "//"
 @invalid(name='pds:/1:/to/file.csv')  # Windows unit must be a letter
+@invalid(name='/path/to/file')
 @names(name='pds:/path/to/file.csv',
        out=('pds-csv://localhost/path/to/file.csv', '/path/to/file.csv',
             'file.csv'))
@@ -126,6 +129,7 @@ class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
 @valid(name='pds-xls:/path/to/file::"",[],[0,7]')
 @valid(name='pds-xls:/path/to/file::\'\',[],[0,7]')
 @invalid(name='pds-xls:/path/to/file::",[],[0,7]')
+@invalid(name='/path/to/file.csv::')  # Implicit scheme
 @names(name='pds-xls:/path/to/file::',
        out=('pds-xls://localhost/path/to/file::', '/path/to/file::', ''))
 @names(name='pds:/path/to/file.xls::"Sheet"',
