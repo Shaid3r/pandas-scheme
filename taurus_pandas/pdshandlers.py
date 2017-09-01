@@ -27,21 +27,58 @@
 psdhandlers.py:
 """
 
+import pandas
 
 class AbstractHandler(object):
     fmts = []
+    kwargs = {}
 
     @classmethod
     def canHandle(cls, ext):
         return ext in cls.fmts
 
+    def setFilename(self, filename):
+        self.filename = filename
+
+    def read(self):
+        raise NotImplementedError("read cannot be called"
+                                  " for AbstractHandler")
+
+    def addArgs(self, args):
+        raise NotImplementedError("addArgs cannot be called"
+                                  " for AbstractHandler")
+
 
 class CSVHandler(AbstractHandler):
     fmts = ['.csv']
 
+    def read(self):
+        print "kwargs: ", self.kwargs
+        return pandas.read_csv(self.filename, **self.kwargs)
+
+    def addArgs(self, args):
+        try:
+            self.kwargs['usecols'] = args[0]
+            # self.kwargs['rows'] = args[1]
+        except:
+            pass
+
 
 class XLSHandler(AbstractHandler):
     fmts = ['.xls', '.xlsx']
+
+    def read(self):
+        print "kwargs: ", self.kwargs
+        return pandas.read_excel(self.filename, **self.kwargs)
+
+    def addArgs(self, args):
+        print args
+        try:
+            self.kwargs['sheetname'] = args[0]
+            self.kwargs['parse_cols'] = args[1]
+            # self.kwargs['rows'] = args[2]
+        except:
+            pass
 
 
 schemesMap = {'pds': AbstractHandler,

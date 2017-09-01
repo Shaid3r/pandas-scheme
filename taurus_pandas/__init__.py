@@ -26,3 +26,8 @@
 """
 Pandas scheme for taurus core model.
 """
+
+from pdsfactory import PandasFactory
+from pdsattribute import PandasAttribute
+from pdsdevice import PandasDevice
+from pdsauthority import PandasAuthority

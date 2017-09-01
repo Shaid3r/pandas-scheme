@@ -34,5 +34,7 @@ class PandasDevice(TaurusDevice):
     # _factory = PandasFactory  # circular dependency
 
     def __init__(self, name, **kwargs):
-        TaurusDevice.__init__(self, name, **kwargs)
-        # self.filename
+        self.call__init__(TaurusDevice, name, **kwargs)
+        v = self.getNameValidator()
+        urigroups = v.getUriGroups(name)
+        self.filename = urigroups.get("devname")

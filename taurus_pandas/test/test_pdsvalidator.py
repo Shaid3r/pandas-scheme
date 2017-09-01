@@ -128,6 +128,7 @@ class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
 # Get 7 rows starting with 0, all columns, 1-st sheet
 @valid(name='pds-xls:/path/to/file::"",[],[0,7]')
 @valid(name='pds-xls:/path/to/file::\'\',[],[0,7]')
+# @valid(name='pds-xls:/path/to/file::"Sheet1", {"parse_cols":12}')
 @invalid(name='pds-xls:/path/to/file::",[],[0,7]')
 @invalid(name='/path/to/file.csv::')  # Implicit scheme
 @names(name='pds-xls:/path/to/file::',

@@ -22,6 +22,7 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
+from taurus import makeSchemeExplicit
 
 __all__ = ["PandasAuthorityNameValidator", "PandasDeviceNameValidator",
            "PandasAttributeNameValidator"]
@@ -44,6 +45,16 @@ class PandasAuthorityNameValidator(TaurusAuthorityNameValidator):
     path = '(?!)'
     query = '(?!)'
     fragment = '(?!)'
+
+    def getUriGroups(self, name, strict=None):
+        name = makeSchemeExplicit(name, default='pds')
+        m = self.name_re.match(name)
+        # if it is strictly valid, return the groups
+        if m is not None:
+            ret = m.groupdict()
+            ret['__STRICT__'] = True
+            return ret
+        return None
 
 
 class PandasDeviceNameValidator(TaurusDeviceNameValidator):
@@ -80,11 +91,11 @@ class PandasDeviceNameValidator(TaurusDeviceNameValidator):
 
         try:
             scheme = groups.get('scheme')
-        except Exception:
-            return None
 
-        if scheme != 'pds':
-            return groups
+            if scheme != 'pds':
+                return groups
+        except:
+            return None
 
         import os
         _, ext = os.path.splitext(groups.get('devname'))
@@ -111,17 +122,17 @@ class PandasAttributeNameValidator(TaurusAttributeNameValidator):
 
         try:
             scheme = groups.get('scheme')
+
+            if scheme == 'pds':
+                import os
+                _, ext = os.path.splitext(groups.get('devname'))
+
+                for handler in schemesMap.keys():
+                    if schemesMap[handler].canHandle(ext):
+                        groups['scheme'] = handler
+                        break
         except:
             return None
-
-        if scheme == 'pds':
-            import os
-            _, ext = os.path.splitext(groups.get('devname'))
-
-            for handler in schemesMap.keys():
-                if schemesMap[handler].canHandle(ext):
-                    groups['scheme'] = handler
-                    break
 
         authority = groups.get('authority')
         if authority is None:
@@ -136,8 +147,11 @@ class PandasAttributeNameValidator(TaurusAttributeNameValidator):
 
     def getUriGroups(self, name, strict=None):
         groups = TaurusAttributeNameValidator.getUriGroups(self, name, strict)
-        attrname = groups.get('attrname')
 
+        if groups is None:
+            return None
+
+        attrname = groups.get('attrname')
         if attrname is None:
             return None
 
