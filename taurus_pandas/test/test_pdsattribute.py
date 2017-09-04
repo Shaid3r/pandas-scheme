@@ -37,6 +37,9 @@ from taurus.test import insertTest
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
+# =========================================================================
+# Tests of return types
+# =========================================================================
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["int1"]'.format(BASE_DIR),
             expected=dict(
@@ -114,6 +117,36 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
                         ['2', '5', '3.4', '2.3', 'b', 'e', 'True', 'False'],
                         ['3', '6', '5.6', '3.4', 'c', 'f', 'False', 'True']],
                 type=DataType.String
+            ))
+# =========================================================================
+# Tests of XMLHandler
+# =========================================================================
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:{}/res/file.xls::"Sheet2"'.format(BASE_DIR),
+            expected=dict(
+                rvalue=Quantity([1, 2, 3], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:{}/res/file.xls::"Sheet",["int1"]'.format(
+                BASE_DIR),
+            expected=dict(
+                rvalue=Quantity([1, 2, 3], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:{}/res/file.xls::"",["int1"]'.format(
+                BASE_DIR),
+            expected=dict(
+                rvalue=Quantity([1, 2, 3], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:{}/res/file.xls::'
+                          '"Sheet",["int1","int2"]'.format(BASE_DIR),
+            expected=dict(
+                rvalue=Quantity([[1, 4], [2, 5], [3, 6]], 'dimensionless'),
+                type=DataType.Integer
             ))
 class PandasAttributeTestCase(unittest.TestCase):
     def read_attr(self, attr_fullname, expected={}):

@@ -29,13 +29,39 @@ psdhandlers.py:
 
 import pandas
 
+
 class AbstractHandler(object):
-    fmts = []
-    kwargs = {}
+    _fmts = []
+
+    def __init__(self):
+        self._kwargs = {}
+        self._cols = None
+        self._rows = None
+
+    def parseAttrName(self, attr_name):
+        """:return (DataFrame)"""
+        if attr_name != '':
+            import ast
+            print("attr: " + attr_name)
+            args = ast.literal_eval(attr_name)
+
+            if isinstance(args[-1], dict):
+                print "Dict: ", args[-1]
+                self.addKwargs(args[-1])
+                self.addArgs(args[:-1])
+            else:
+                print "No dict", args
+                self.addArgs(args)
+
+        df = self.read()
+        df = self.getColumns(df, self._cols)  # Cut columns
+        df = self.getRows(df, self._rows)  # Cut rows
+
+        return df
 
     @classmethod
     def canHandle(cls, ext):
-        return ext in cls.fmts
+        return ext in cls._fmts
 
     def setFilename(self, filename):
         self.filename = filename
@@ -50,39 +76,50 @@ class AbstractHandler(object):
 
     def addKwargs(self, args):
         for arg in args:
-            self.kwargs[arg] = args[arg]
+            self._kwargs[arg] = args[arg]
+
+    @staticmethod
+    def getColumns(df, columns):
+        if columns:
+            return df[columns]
+        return df
+
+    @staticmethod
+    def getRows(df, rows):
+        # print "ROWS", rows
+        # print df[rows]
+        return df
 
 
 class CSVHandler(AbstractHandler):
-    fmts = ['.csv']
+    _fmts = ['.csv']
 
     def read(self):
-        print "kwargs: ", self.kwargs
-        return pandas.read_csv(self.filename, **self.kwargs)
+        return pandas.read_csv(self.filename, **self._kwargs)
 
     def addArgs(self, args):
         if isinstance(args, list):
-            self.kwargs['usecols'] = args
+            self._cols = args
         elif isinstance(args, tuple):
-            self.kwargs['usecols'] = args[0]
-            # self.kwargs['rows'] = args[1]
+            self._cols = args[0]
+            self._rows = args[1]
 
 
 class XLSHandler(AbstractHandler):
-    fmts = ['.xls', '.xlsx']
+    _fmts = ['.xls', '.xlsx']
 
     def read(self):
-        print "kwargs: ", self.kwargs
-        return pandas.read_excel(self.filename, **self.kwargs)
+        return pandas.read_excel(self.filename, **self._kwargs)
 
     def addArgs(self, args):
         if isinstance(args, basestring):
-            self.kwargs['sheetname'] = args
+            self._kwargs['sheetname'] = args
         elif isinstance(args, tuple):
+            if args[0] != '':
+                self._kwargs['sheetname'] = args[0]
             try:
-                self.kwargs['sheetname'] = args[0]
-                self.kwargs['parse_cols'] = args[1]
-                # self.kwargs['rows'] = args[2]
+                self._cols = args[1]
+                self._rows = args[2]
             except:
                 pass
 
@@ -91,7 +128,6 @@ schemesMap = {'pds': AbstractHandler,
               'pds-csv': CSVHandler,
               'pds-xls': XLSHandler
               }
-
 
 if __name__ == "__main__":
     c = CSVHandler()

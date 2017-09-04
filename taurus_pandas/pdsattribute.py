@@ -36,7 +36,6 @@ from taurus_pandas.pdshandlers import schemesMap
 
 
 class PandasAttribute(TaurusAttribute):
-    """Store DataFrame object"""
     _scheme = 'pds'
     handler = None
 
@@ -66,29 +65,13 @@ class PandasAttribute(TaurusAttribute):
         dev = self.getParentObj()
         self.handler.setFilename(dev.filename)
 
-        if self._attr_name != '':
-            import ast
-            print("attr: " + self._attr_name)
-            args = ast.literal_eval(self._attr_name)
-
-            if args[-1] is dict:
-                print "Dict: ", args[-1]
-                self.handler.addKwargs()
-                self.handler.addArgs(args[:-1])
-            else:
-                print "No dict", tuple(args)
-                self.handler.addArgs(args)
-
-        data_frame = self.handler.read()
-
-        print data_frame
-        # if data_frame is None:
-        #     msg = ""
+        data_frame = self.handler.parseAttrName(self._attr_name)
 
         value = TaurusAttrValue()
         value.rvalue = self.decode(data_frame)
         value.time = TaurusTimeVal.now()
         self._last_value = value
+
         return value
 
     # def nextChunk(self):
@@ -155,10 +138,10 @@ if __name__ == "__main__":
     from taurus_pandas.pdsfactory import PandasFactory
 
     path2file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             'test/res/file.csv')
+                             'test/res/file.xls')
     attrname = ''
-    # attrname = '["int1"]'
-    attrname = '["int1","int2"]'
+    attrname = '["int1"]'
+    # attrname = '["int1","int2"]'
     # attrname = '"Sheet1"'
     # attrname = '"Sheet1",["column"]'
     a = PandasFactory().getAttribute("pds:{}::{}".format(path2file, attrname))
