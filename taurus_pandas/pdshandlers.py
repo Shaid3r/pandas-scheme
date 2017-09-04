@@ -48,6 +48,10 @@ class AbstractHandler(object):
         raise NotImplementedError("addArgs cannot be called"
                                   " for AbstractHandler")
 
+    def addKwargs(self, args):
+        for arg in args:
+            self.kwargs[arg] = args[arg]
+
 
 class CSVHandler(AbstractHandler):
     fmts = ['.csv']
@@ -57,11 +61,11 @@ class CSVHandler(AbstractHandler):
         return pandas.read_csv(self.filename, **self.kwargs)
 
     def addArgs(self, args):
-        try:
+        if isinstance(args, list):
+            self.kwargs['usecols'] = args
+        elif isinstance(args, tuple):
             self.kwargs['usecols'] = args[0]
             # self.kwargs['rows'] = args[1]
-        except:
-            pass
 
 
 class XLSHandler(AbstractHandler):
@@ -72,13 +76,15 @@ class XLSHandler(AbstractHandler):
         return pandas.read_excel(self.filename, **self.kwargs)
 
     def addArgs(self, args):
-        print args
-        try:
-            self.kwargs['sheetname'] = args[0]
-            self.kwargs['parse_cols'] = args[1]
-            # self.kwargs['rows'] = args[2]
-        except:
-            pass
+        if isinstance(args, basestring):
+            self.kwargs['sheetname'] = args
+        elif isinstance(args, tuple):
+            try:
+                self.kwargs['sheetname'] = args[0]
+                self.kwargs['parse_cols'] = args[1]
+                # self.kwargs['rows'] = args[2]
+            except:
+                pass
 
 
 schemesMap = {'pds': AbstractHandler,

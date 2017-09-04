@@ -25,10 +25,12 @@
 
 __all__ = ["PandasAttribute"]
 
-import pandas
-
-from taurus.core import TaurusException, TaurusAttrValue, TaurusTimeVal
+from taurus.core import TaurusException
 from taurus.core.taurusattribute import TaurusAttribute
+from taurus.core.taurusbasetypes import (DataType,
+                                         DataFormat,
+                                         TaurusAttrValue,
+                                         TaurusTimeVal)
 from taurus.external.pint import Quantity
 from taurus_pandas.pdshandlers import schemesMap
 
@@ -37,6 +39,13 @@ class PandasAttribute(TaurusAttribute):
     """Store DataFrame object"""
     _scheme = 'pds'
     handler = None
+
+    npdtype2taurusdtype = {'b': DataType.Boolean,
+                           'i': DataType.Integer,
+                           'f': DataType.Float,
+                           'O': DataType.String,
+                           'S': DataType.String
+                           }
 
     def __init__(self, name, parent, **kwargs):
         TaurusAttribute.__init__(self, name, parent, **kwargs)
@@ -61,13 +70,11 @@ class PandasAttribute(TaurusAttribute):
             import ast
             print("attr: " + self._attr_name)
             args = ast.literal_eval(self._attr_name)
-            if isinstance(args, basestring):
-                args = (args,)
 
             if args[-1] is dict:
                 print "Dict: ", args[-1]
-                # self.handler.addKwargs()
-                # self.handler.addArgs(args[:-1])
+                self.handler.addKwargs()
+                self.handler.addArgs(args[:-1])
             else:
                 print "No dict", tuple(args)
                 self.handler.addArgs(args)
@@ -91,10 +98,28 @@ class PandasAttribute(TaurusAttribute):
     #     handler.setChunkSize(size)
 
     def decode(self, data_frame):
+        columns_count = len(data_frame.columns)
+        attr_value_np = data_frame.as_matrix()
 
-        value = 0
+        if columns_count < 2:
+            self.data_format = DataFormat._1D
+            attr_value_np = attr_value_np.reshape(-1)
+        else:
+            self.data_format = DataFormat._2D
 
-        # value = Quantity(attr_value_np, units=units)
+        npdtype = attr_value_np.dtype.kind
+        self.type = self.npdtype2taurusdtype.get(npdtype)
+
+        if self.isNumeric():
+            value = Quantity(attr_value_np, units="dimensionless")
+        elif self.type is DataType.String or self.type is DataType.Boolean:
+            value = attr_value_np.tolist()
+
+        if npdtype == 'O' and columns_count >= 2:
+            for row_idx in range(len(value)):
+                for item_idx in range(len(value[row_idx])):
+                    value[row_idx][item_idx] = str(value[row_idx][item_idx])
+
         return value
 
     def encode(self, value):
@@ -102,8 +127,6 @@ class PandasAttribute(TaurusAttribute):
         return value
 
     def poll(self):
-        # v = self.read(cache=False)
-        # self.fireEvent(TaurusEventType.Periodic, v)
         pass
 
     def isWritable(self, cache=True):
@@ -132,8 +155,11 @@ if __name__ == "__main__":
     from taurus_pandas.pdsfactory import PandasFactory
 
     path2file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             'test/res/file.xls')
-    attrname = '"Sheet1"'
+                             'test/res/file.csv')
+    attrname = ''
+    # attrname = '["int1"]'
+    attrname = '["int1","int2"]'
+    # attrname = '"Sheet1"'
     # attrname = '"Sheet1",["column"]'
     a = PandasFactory().getAttribute("pds:{}::{}".format(path2file, attrname))
     print a.read()

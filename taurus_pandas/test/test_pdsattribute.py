@@ -44,7 +44,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
                 type=DataType.Integer
             ))
 @insertTest(helper_name="read_attr",
-            attr_fullname='pds:{}/res/file.csv::["int1,"int2"]'.format(
+            attr_fullname='pds:{}/res/file.csv::["int1","int2"]'.format(
                 BASE_DIR),
             expected=dict(
                 rvalue=Quantity([[1, 4], [2, 5], [3, 6]], 'dimensionless'),
@@ -95,7 +95,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
             attr_fullname='pds:{}/res/file.csv::["int1","float1"]'.format(
                 BASE_DIR),
             expected=dict(
-                rvalue=Quantity([[1, 1.2], [2, 3.4], [3, 5.6]],
+                rvalue=Quantity([[1., 1.2], [2., 3.4], [3., 5.6]],
                                 'dimensionless'),
                 type=DataType.Float
             ))
