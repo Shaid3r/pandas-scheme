@@ -23,15 +23,24 @@
 ##
 #############################################################################
 
+"""
+taurus_pandas module. See __init__.py for more detailed documentation
+"""
+
 __all__ = ["PandasDevice"]
 
 from taurus.core.taurusdevice import TaurusDevice
-# from taurus_pandas.pdsfactory import PandasFactory
 
 
 class PandasDevice(TaurusDevice):
+    """PandasDevice object. It is a :class:`TaurusDevice` and is used as the
+    parent of :class:`PandasAttribute` objects.
+
+    .. warning:: In most cases this class should not be instantiated directly.
+                 Instead it should be done via the
+                 :meth:`PandasFactory.getDevice`
+    """
     _scheme = 'pds'
-    # _factory = PandasFactory  # circular dependency
 
     def __init__(self, name, **kwargs):
         self.call__init__(TaurusDevice, name, **kwargs)

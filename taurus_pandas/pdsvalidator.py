@@ -22,13 +22,16 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
-from taurus import makeSchemeExplicit
+
+"""
+taurus_pandas module. See __init__.py for more detailed documentation
+"""
 
 __all__ = ["PandasAuthorityNameValidator", "PandasDeviceNameValidator",
            "PandasAttributeNameValidator"]
 
 from os import path
-
+from taurus import makeSchemeExplicit
 from taurus.core.taurusvalidator import (TaurusAttributeNameValidator,
                                          TaurusDeviceNameValidator,
                                          TaurusAuthorityNameValidator)
@@ -38,8 +41,8 @@ from taurus_pandas.pdshandlers import schemesMap
 
 class PandasAuthorityNameValidator(TaurusAuthorityNameValidator):
     """A validator for Authority names in the pandas scheme.
-        For now it is a dummy one, allowing only //localhost
-        """
+    For now, the only supported authority  is "//localhost".
+    """
     scheme = "|".join(["(" + x + ")" for x in schemesMap.keys()])
     authority = '//localhost'
     path = '(?!)'
@@ -47,6 +50,10 @@ class PandasAuthorityNameValidator(TaurusAuthorityNameValidator):
     fragment = '(?!)'
 
     def getUriGroups(self, name, strict=None):
+        """
+        reimplemented from :class:`TaurusAuthorityNameValidator` to provide
+        proper default scheme.
+        """
         name = makeSchemeExplicit(name, default='pds')
         m = self.name_re.match(name)
         # if it is strictly valid, return the groups
@@ -87,6 +94,12 @@ class PandasDeviceNameValidator(TaurusDeviceNameValidator):
         return complete, normal, short
 
     def getUriGroups(self, name, strict=None):
+        """
+        reimplemented from :class:`TaurusDeviceNameValidator` to check
+        if scheme can be handled. Changes `psd` scheme for it fullname
+        equivalent (eg. `pds-csv`), in order that it could be handled
+        later by proper handler.
+        """
         groups = TaurusDeviceNameValidator.getUriGroups(self, name, strict)
 
         try:
@@ -111,13 +124,17 @@ class PandasAttributeNameValidator(TaurusAttributeNameValidator):
     """A validator for Attribute names in the pandas scheme."""
     scheme = PandasAuthorityNameValidator.scheme
     authority = PandasAuthorityNameValidator.authority
-    path = r'%s::(?P<attrname>[\w.\-/\[\]"\',{}:]*)'\
+    path = r'%s::(?P<attrname>[\w.\-/\[\]"\',{}:]*)' \
            % PandasDeviceNameValidator.path
     query = '(?!)'
     fragment = '(?!)'
 
     def getNames(self, fullname, factory=None, fragment=False):
-        """reimplemented from :class:`TaurusAttributeNameValidator`.
+        """
+        reimplemented from :class:`TaurusAttributeNameValidator` to check
+        if scheme can be handled. Changes `psd` scheme for it fullname
+        equivalent (eg. `pds-csv`), in order that it could be handled
+        later by proper handler.
         """
         groups = self.getUriGroups(fullname)
 
@@ -147,6 +164,7 @@ class PandasAttributeNameValidator(TaurusAttributeNameValidator):
         return complete, normal, short
 
     def getUriGroups(self, name, strict=None):
+        """reimplemented from :class:`TaurusAttributeNameValidator`."""
         groups = TaurusAttributeNameValidator.getUriGroups(self, name, strict)
 
         if groups is None:

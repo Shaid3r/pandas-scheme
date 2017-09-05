@@ -123,6 +123,7 @@ class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
 # =========================================================================
 # XLS tests
 @valid(name='pds:/path/to/file.xls::')  # Get all columns from 1-st sheet
+@valid(name='pds-xls:/path/to/file::{"parse_cols":"A:B"}')
 @valid(name='pds-xls:/path/to/file::"Sheet"')  # Get all columns from "Sheet"
 @valid(name='pds-xls:/path/to/file::"Sheet",["column1"]')  # Get 1 column
 # Get multiple columns
@@ -131,7 +132,7 @@ class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
 # Get all rows from 0 to 7 (excluding 7), all columns, 1-st sheet
 @valid(name='pds-xls:/path/to/file::"",[],[0,7]')
 @valid(name='pds-xls:/path/to/file::\'\',[],[0,7]')
-# @valid(name='pds-xls:/path/to/file::"Sheet1", {"parse_cols":12}')
+@valid(name='pds-xls:/path/to/file::"Sheet1",{"parse_cols":"A:B"}')
 @invalid(name='pds-xls:/path/to/file::",[],[0,7]')
 @invalid(name='/path/to/file.csv::')  # Implicit scheme
 @names(name='pds-xls:/path/to/file::',

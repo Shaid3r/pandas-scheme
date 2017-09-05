@@ -24,7 +24,7 @@
 #############################################################################
 
 """
-psdfactory.py:
+taurus_pandas module. See __init__.py for more detailed documentation
 """
 
 __all__ = ["PandasFactory"]
@@ -65,21 +65,16 @@ class PandasFactory(Singleton, TaurusFactory, Logger):
         self.call__init__(Logger, name)
         self.call__init__(TaurusFactory)
 
-    def getAuthorityNameValidator(self):
-        import pdsvalidator
-        return pdsvalidator.PandasAuthorityNameValidator()
+    def getAuthority(self, name='pds://localhost'):
+        """Obtain the model object corresponding to the given authority name.
+        If the corresponding authority already exists, the existing instance
+        is returned. Otherwise a new instance is stored and returned.
 
-    def getDeviceNameValidator(self):
-        import pdsvalidator
-        return pdsvalidator.PandasDeviceNameValidator()
+        :param name: (str) authority name
 
-    def getAttributeNameValidator(self):
-        import pdsvalidator
-        return pdsvalidator.PandasAttributeNameValidator()
-
-    def getAuthority(self, name=None):
-        if name is None:
-            name = 'pds://localhost'
+        :return: a PandasAuthority object
+        :raises: :TaurusException: if the given name is invalid.
+        """
 
         v = self.getAuthorityNameValidator()
         if not v.isValid(name):
@@ -91,6 +86,15 @@ class PandasFactory(Singleton, TaurusFactory, Logger):
         return self._auth
 
     def getAttribute(self, name):
+        """Obtain the model object corresponding to the given attribute name.
+        If the corresponding attribute already exists, the existing instance
+        is returned. Otherwise a new instance is stored and returned.
+
+        :param name: (str) attribute name
+
+        :return: a PandasAttribute object
+        :raises: :TaurusException: if the given name is invalid.
+        """
         v = self.getAttributeNameValidator()
         if not v.isValid(name):
             msg = "Invalid attribute name '{name}'".format(name=name)
@@ -115,3 +119,18 @@ class PandasFactory(Singleton, TaurusFactory, Logger):
         attr = cls(name=fullname, parent=dev)
         self._attrs[fullname] = attr
         return attr
+
+    def getAuthorityNameValidator(self):
+        """Return PandasAuthorityNameValidator"""
+        import pdsvalidator
+        return pdsvalidator.PandasAuthorityNameValidator()
+
+    def getDeviceNameValidator(self):
+        """Return PandasDeviceNameValidator"""
+        import pdsvalidator
+        return pdsvalidator.PandasDeviceNameValidator()
+
+    def getAttributeNameValidator(self):
+        """Return PandasAttributeNameValidator"""
+        import pdsvalidator
+        return pdsvalidator.PandasAttributeNameValidator()

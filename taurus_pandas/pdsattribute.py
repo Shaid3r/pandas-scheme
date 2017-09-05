@@ -23,6 +23,10 @@
 ##
 #############################################################################
 
+"""
+taurus_pandas module. See __init__.py for more detailed documentation
+"""
+
 __all__ = ["PandasAttribute"]
 
 from taurus.core import TaurusException
@@ -36,6 +40,13 @@ from taurus_pandas.pdshandlers import schemesMap
 
 
 class PandasAttribute(TaurusAttribute):
+    """A :class:`TaurusAttribute` that gives access to selected columns and
+     rows converting them to `TaurusAttrValue`.
+
+    .. warning:: In most cases this class should not be instantiated directly.
+                 Instead it should be done via the
+                 :meth:`PandasFactory.getAttribute`
+    """
     _scheme = 'pds'
     handler = None
 
@@ -58,7 +69,13 @@ class PandasAttribute(TaurusAttribute):
         self._last_value = None
 
     def read(self, cache=True):
-        """Read file, gets df, set rvalue"""
+        """Returns the value of the attribute.
+
+        :param cache: (bool) If True (default), the last calculated value will
+                      be returned. If False, the referenced values will be re-
+                      read.
+        :return: TaurusAttrValue
+        """
         if cache and self._last_value is not None:
             return self._last_value
 
@@ -74,13 +91,12 @@ class PandasAttribute(TaurusAttribute):
 
         return value
 
-    # def nextChunk(self):
-    #     pass
-    #
-    # def setChunkSize(self, size):
-    #     handler.setChunkSize(size)
-
     def decode(self, data_frame):
+        """
+        Decode the DataFrame to the corresponding python attribute
+        :param data_frame: (pandas.DataFrame)
+        :return: taurus valid type
+        """
         columns_count = len(data_frame.columns)
         attr_value_np = data_frame.as_matrix()
 
@@ -105,11 +121,13 @@ class PandasAttribute(TaurusAttribute):
 
         return value
 
+# -----------------------------------------------------------------------------
     def encode(self, value):
         # TODO: implement it if you want to support writable attributes
         return value
 
     def poll(self):
+        # TODO: implement it if you want to support writable attributes
         pass
 
     def isWritable(self, cache=True):
@@ -140,7 +158,7 @@ if __name__ == "__main__":
     path2file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                              'test/res/file.xls')
     attrname = ''
-    attrname = '["int1"]'
+    # attrname = '["int1"]'
     # attrname = '["int1","int2"]'
     # attrname = '"Sheet1"'
     # attrname = '"Sheet1",["column"]'

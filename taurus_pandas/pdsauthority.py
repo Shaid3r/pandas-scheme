@@ -23,10 +23,20 @@
 ##
 #############################################################################
 
+"""
+taurus_pandas module. See __init__.py for more detailed documentation
+"""
+
 __all__ = ["PandasAuthority"]
 
 from taurus.core.taurusauthority import TaurusAuthority
 
 
 class PandasAuthority(TaurusAuthority):
+    """Dummy authority class for Pandas
+
+    .. warning:: In most cases this class should not be instantiated directly.
+                 Instead it should be done via the
+                 :meth:`PandasFactory.getAuthority`
+    """
     _scheme = 'pds'

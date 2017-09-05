@@ -24,16 +24,34 @@
 #############################################################################
 
 """
-psdhandlers.py:
+This module contains all handlers that depending on the file extension
+parses given attribute name and returns pandas.DataFrame.
+
+It also defines `schemesMap` that every supported scheme assigns proper
+handler.
 """
 
 import ast
-
 import pandas
 
 
 class AbstractHandler(object):
-    _fmts = []
+    """
+    Base class for every Handler.
+
+    _exts: (list) list of the supported extensions
+    _kwargs: (dict) dict of arguments that will be passed to pandas function
+    _cols: (list) list of columns cut by parseAttrName
+    _rows: (list) list of rows cut by parseAttrName
+
+    Every new handler should provide:
+    - _exts
+    - read
+    - _addArg
+
+    Additionally handler should be assigned to scheme in `schemeMap`.
+    """
+    _exts = []
 
     def __init__(self):
         self._kwargs = {}
@@ -41,20 +59,26 @@ class AbstractHandler(object):
         self._rows = None
 
     def parseAttrName(self, attr_name):
-        """:return (DataFrame)"""
+        """
+        Parses part of the URI after "::" using `ast.literal_eval` then
+        opens given file using pandas functions, cut appropriate columns
+        and rows and returns them.
+        :param attr_name: (str) attribute name from the URI
+        :return: (pandas.DataFrame)
+        """
         if attr_name != '':
             args = ast.literal_eval(attr_name)
 
             if isinstance(args, dict):
-                self.addKwargs(args)
+                self._addKwargs(args)
             elif not isinstance(args, tuple):
-                self.addArg(0, args)
+                self._addArg(0, args)
             else:
                 if isinstance(args[-1], dict):
-                    self.addKwargs(args[-1])
-                    self.addArgs(args[:-1])
+                    self._addKwargs(args[-1])
+                    self._addArgs(args[:-1])
                 else:
-                    self.addArgs(args)
+                    self._addArgs(args)
 
         df = self.read()
         df = self.getColumns(df, self._cols)  # Cut columns
@@ -64,24 +88,37 @@ class AbstractHandler(object):
 
     @classmethod
     def canHandle(cls, ext):
-        return ext in cls._fmts
-
-    def setFilename(self, filename):
-        self.filename = filename
+        """
+        Checks if given handler can handle file with this extension.
+        :param ext: (str)
+        :return: (bool)
+        """
+        return ext in cls._exts
 
     def read(self):
+        """
+        Opens given file using appropriate pandas function and
+        returns it content.
+        :return: (pandas.DataFrame)
+        """
         raise NotImplementedError("read cannot be called"
                                   " for AbstractHandler")
 
-    def addArg(self, pos, arg):
+    def _addArg(self, pos, arg):
+        """
+        Sets appropriate attributes for given argument.
+        This method should be implemented in derived classes.
+        :param pos: (int) position of the argument in attr_name
+        :param arg: (undefined) argument
+        """
         raise NotImplementedError("addArg cannot be called"
                                   " for AbstractHandler")
 
-    def addArgs(self, args):
+    def _addArgs(self, args):
         for pos, arg in enumerate(args):
-            self.addArg(pos, arg)
+            self._addArg(pos, arg)
 
-    def addKwargs(self, args):
+    def _addKwargs(self, args):
         for arg in args:
             self._kwargs[arg] = args[arg]
 
@@ -99,14 +136,17 @@ class AbstractHandler(object):
             return df[rows[0]:rows[0] + 1]
         return df
 
+    def setFilename(self, filename):
+        self.filename = filename
+
 
 class CSVHandler(AbstractHandler):
-    _fmts = ['.csv']
+    _exts = ['.csv']
 
     def read(self):
         return pandas.read_csv(self.filename, **self._kwargs)
 
-    def addArg(self, pos, arg):
+    def _addArg(self, pos, arg):
         if pos == 0:
             self._cols = arg
         else:
@@ -114,12 +154,12 @@ class CSVHandler(AbstractHandler):
 
 
 class XLSHandler(AbstractHandler):
-    _fmts = ['.xls', '.xlsx']
+    _exts = ['.xls', '.xlsx']
 
     def read(self):
         return pandas.read_excel(self.filename, **self._kwargs)
 
-    def addArg(self, pos, arg):
+    def _addArg(self, pos, arg):
         if pos == 0 and arg != '':
             self._kwargs['sheetname'] = arg
         elif pos == 1:
