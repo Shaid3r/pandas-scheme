@@ -111,7 +111,8 @@ class PandasAttributeNameValidator(TaurusAttributeNameValidator):
     """A validator for Attribute names in the pandas scheme."""
     scheme = PandasAuthorityNameValidator.scheme
     authority = PandasAuthorityNameValidator.authority
-    path = r'%s::(?P<attrname>[\w.\-/\[\]"\',]*)' % PandasDeviceNameValidator.path
+    path = r'%s::(?P<attrname>[\w.\-/\[\]"\',{}:]*)'\
+           % PandasDeviceNameValidator.path
     query = '(?!)'
     fragment = '(?!)'
 

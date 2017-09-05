@@ -108,11 +108,14 @@ class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
 # =========================================================================
 # CSV tests
 @valid(name='pds:/path/to/file.csv::')  # Get all columns
+# Pass dict to pandas function
+@valid(name='pds:/path/to/file.csv::{"usecols":["col1","col2"]}')
 @valid(name='pds-csv:/path/to/file::["column1"]')  # Get 1 column
 # Get multiple columns
 @valid(name='pds-csv:/path/to/file::["column1","column2"]')
+@valid(name='pds-csv:/path/to/file::["column1"],[0]')  # Get row 0
 @valid(name='pds-csv:/path/to/file::[],[0]')  # Get row 0, all columns
-# Get 7 rows starting with 0, all columns
+# Get all rows from 0 to 7 (excluding 7), all columns
 @valid(name='pds-csv:/path/to/file::[],[0,7]')
 @names(name='pds:/path/to/file.csv::["column1"]',
        out=('pds-csv://localhost/path/to/file.csv::["column1"]',
@@ -125,7 +128,7 @@ class PandasDevValidatorTestCase(AbstractNameValidatorTestCase,
 # Get multiple columns
 @valid(name='pds-xls:/path/to/file::"Sheet",["column1","column2"]')
 @valid(name='pds-xls:/path/to/file::"Sheet",[],[0]')  # Get row 0, all columns
-# Get 7 rows starting with 0, all columns, 1-st sheet
+# Get all rows from 0 to 7 (excluding 7), all columns, 1-st sheet
 @valid(name='pds-xls:/path/to/file::"",[],[0,7]')
 @valid(name='pds-xls:/path/to/file::\'\',[],[0,7]')
 # @valid(name='pds-xls:/path/to/file::"Sheet1", {"parse_cols":12}')

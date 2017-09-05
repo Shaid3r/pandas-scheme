@@ -27,6 +27,8 @@
 psdhandlers.py:
 """
 
+import ast
+
 import pandas
 
 
@@ -41,17 +43,18 @@ class AbstractHandler(object):
     def parseAttrName(self, attr_name):
         """:return (DataFrame)"""
         if attr_name != '':
-            import ast
-            print("attr: " + attr_name)
             args = ast.literal_eval(attr_name)
 
-            if isinstance(args[-1], dict):
-                print "Dict: ", args[-1]
-                self.addKwargs(args[-1])
-                self.addArgs(args[:-1])
+            if isinstance(args, dict):
+                self.addKwargs(args)
+            elif not isinstance(args, tuple):
+                self.addArg(0, args)
             else:
-                print "No dict", args
-                self.addArgs(args)
+                if isinstance(args[-1], dict):
+                    self.addKwargs(args[-1])
+                    self.addArgs(args[:-1])
+                else:
+                    self.addArgs(args)
 
         df = self.read()
         df = self.getColumns(df, self._cols)  # Cut columns
@@ -70,9 +73,13 @@ class AbstractHandler(object):
         raise NotImplementedError("read cannot be called"
                                   " for AbstractHandler")
 
-    def addArgs(self, args):
-        raise NotImplementedError("addArgs cannot be called"
+    def addArg(self, pos, arg):
+        raise NotImplementedError("addArg cannot be called"
                                   " for AbstractHandler")
+
+    def addArgs(self, args):
+        for pos, arg in enumerate(args):
+            self.addArg(pos, arg)
 
     def addKwargs(self, args):
         for arg in args:
@@ -86,8 +93,10 @@ class AbstractHandler(object):
 
     @staticmethod
     def getRows(df, rows):
-        # print "ROWS", rows
-        # print df[rows]
+        if rows:
+            if len(rows) == 2:
+                return df[rows[0]:rows[1]]
+            return df[rows[0]:rows[0] + 1]
         return df
 
 
@@ -97,12 +106,11 @@ class CSVHandler(AbstractHandler):
     def read(self):
         return pandas.read_csv(self.filename, **self._kwargs)
 
-    def addArgs(self, args):
-        if isinstance(args, list):
-            self._cols = args
-        elif isinstance(args, tuple):
-            self._cols = args[0]
-            self._rows = args[1]
+    def addArg(self, pos, arg):
+        if pos == 0:
+            self._cols = arg
+        else:
+            self._rows = arg
 
 
 class XLSHandler(AbstractHandler):
@@ -111,24 +119,16 @@ class XLSHandler(AbstractHandler):
     def read(self):
         return pandas.read_excel(self.filename, **self._kwargs)
 
-    def addArgs(self, args):
-        if isinstance(args, basestring):
-            self._kwargs['sheetname'] = args
-        elif isinstance(args, tuple):
-            if args[0] != '':
-                self._kwargs['sheetname'] = args[0]
-            try:
-                self._cols = args[1]
-                self._rows = args[2]
-            except:
-                pass
+    def addArg(self, pos, arg):
+        if pos == 0 and arg != '':
+            self._kwargs['sheetname'] = arg
+        elif pos == 1:
+            self._cols = arg
+        else:
+            self._rows = arg
 
 
 schemesMap = {'pds': AbstractHandler,
               'pds-csv': CSVHandler,
               'pds-xls': XLSHandler
               }
-
-if __name__ == "__main__":
-    c = CSVHandler()
-    print c.canHandle('csv')

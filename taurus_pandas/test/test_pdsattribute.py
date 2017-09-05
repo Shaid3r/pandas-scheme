@@ -26,7 +26,6 @@
 """Tests for taurus.core.taurus_pandas.test.test_pdsattribute..."""
 
 import os
-
 import numpy
 import taurus
 from taurus.core import TaurusAttrValue, DataType
@@ -40,6 +39,40 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 # =========================================================================
 # Tests of return types
 # =========================================================================
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds-csv:{}/res/file-csv::["int1"]'.format(BASE_DIR),
+            expected=dict(
+                rvalue=Quantity([1, 2, 3], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds-csv:%s/res/file-csv::{"usecols":["int1"]}'
+                          % BASE_DIR,
+            expected=dict(
+                rvalue=Quantity([1, 2, 3], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds-csv:%s/res/file-csv::["int1"],'
+                          '{"usecols":["int1"]}' % BASE_DIR,
+            expected=dict(
+                rvalue=Quantity([1, 2, 3], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds-csv:%s/res/file-csv::["int1"],[0],'
+                          '{"usecols":["int1"]}' % BASE_DIR,
+            expected=dict(
+                rvalue=Quantity([1], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds-csv:{}/res/file-csv::["int1"],[1,3]'.format(
+                BASE_DIR),
+            expected=dict(
+                rvalue=Quantity([2, 3], 'dimensionless'),
+                type=DataType.Integer
+            ))
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["int1"]'.format(BASE_DIR),
             expected=dict(
@@ -93,6 +126,20 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
                 rvalue=[[True, False], [True, False], [False, True]],
                 type=DataType.Boolean
             ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:{}/res/file.csv::["int1","int2"],[0]'.format(
+                BASE_DIR),
+            expected=dict(
+                rvalue=Quantity([1, 4], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:{}/res/file.csv::["int1","int2"],[1,3]'.format(
+                BASE_DIR),
+            expected=dict(
+                rvalue=Quantity([[2, 5], [3, 6]], 'dimensionless'),
+                type=DataType.Integer
+            ))
 # Mixed types
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["int1","float1"]'.format(
@@ -135,6 +182,13 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
                 type=DataType.Integer
             ))
 @insertTest(helper_name="read_attr",
+            attr_fullname='pds:{}/res/file.xls::"Sheet",["int1"],[2]'.format(
+                BASE_DIR),
+            expected=dict(
+                rvalue=Quantity([3], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.xls::"",["int1"]'.format(
                 BASE_DIR),
             expected=dict(
@@ -144,6 +198,20 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.xls::'
                           '"Sheet",["int1","int2"]'.format(BASE_DIR),
+            expected=dict(
+                rvalue=Quantity([[1, 4], [2, 5], [3, 6]], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:%s/res/file.xls::"Sheet",{"parse_cols":"A:B"}'
+                          % BASE_DIR,
+            expected=dict(
+                rvalue=Quantity([[1, 4], [2, 5], [3, 6]], 'dimensionless'),
+                type=DataType.Integer
+            ))
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:%s/res/file.xls::{"parse_cols":"A:B"}'
+                          % BASE_DIR,
             expected=dict(
                 rvalue=Quantity([[1, 4], [2, 5], [3, 6]], 'dimensionless'),
                 type=DataType.Integer
