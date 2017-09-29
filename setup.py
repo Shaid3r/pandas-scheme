@@ -25,16 +25,17 @@
 
 from setuptools import setup, find_packages
 
-version = '0.0.1'
+version = '0.1.0'
 description = 'pandas Taurus scheme'
-long_description = '''taurus-pandas-scheme is the Taurus scheme for accessing files.
-It is at the initiation stage.'''
+long_description = '''taurus-pandas-scheme is the Taurus scheme that provides
+access to the contents of files as Taurus Attributes. It uses the pandas module.
+'''
 license = 'LGPL'
 platforms = ['Linux', 'Windows']
 
 
-authors = 'ctgensoft'
-email = 'ctgensoft@cells.es'
+authors = 'Shaid3r'
+email = 'michal@szczepanczyk.com'
 url = 'http://www.taurus-scada.org/en/stable/devel/core_tutorial.html'
 
 install_requires = ['taurus>=4.0.1',
