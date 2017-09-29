@@ -33,6 +33,7 @@ handler.
 
 import ast
 import pandas
+from taurus.core import TaurusException
 
 
 class AbstractHandler(object):
@@ -124,9 +125,12 @@ class AbstractHandler(object):
 
     @staticmethod
     def getColumns(df, columns):
-        if columns:
-            return df[columns]
-        return df
+        try:
+            if columns:
+                return df[columns]
+            return df
+        except KeyError:
+            raise TaurusException("Selected column doesn't exists")
 
     @staticmethod
     def getRows(df, rows):
