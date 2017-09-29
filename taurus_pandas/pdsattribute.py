@@ -101,20 +101,34 @@ class PandasAttribute(TaurusAttribute):
         attr_value_np = data_frame.as_matrix()
 
         if columns_count < 2:
-            self.data_format = DataFormat._1D
             attr_value_np = attr_value_np.reshape(-1)
-        else:
-            self.data_format = DataFormat._2D
 
-        npdtype = attr_value_np.dtype.kind
-        self.type = self.npdtype2taurusdtype.get(npdtype)
+            if len(attr_value_np) == 1:
+                self.data_format = DataFormat._0D
+                attr_value_np = attr_value_np[0]
+            else:
+                self.data_format = DataFormat._1D
+        else:
+            if len(attr_value_np) == 1:
+                self.data_format = DataFormat._1D
+                attr_value_np = attr_value_np[0]
+            else:
+                self.data_format = DataFormat._2D
+
+        try:
+            npdtype = attr_value_np.dtype.kind
+            self.type = self.npdtype2taurusdtype.get(npdtype)
+        except AttributeError:
+            self.type = self.npdtype2taurusdtype.get("O")
 
         if self.isNumeric():
             value = Quantity(attr_value_np, units="dimensionless")
+        elif self.data_format == DataFormat._0D:
+            value = attr_value_np
         elif self.type is DataType.String or self.type is DataType.Boolean:
             value = attr_value_np.tolist()
 
-        if npdtype == 'O' and columns_count >= 2:
+        if self.type == self.npdtype2taurusdtype["O"] and columns_count >= 2:
             for row_idx in range(len(value)):
                 for item_idx in range(len(value[row_idx])):
                     value[row_idx][item_idx] = str(value[row_idx][item_idx])

@@ -44,54 +44,79 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
             expected=dict(
                 rvalue=Quantity([1, 2, 3], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=1
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds-csv:%s/res/file-csv::{"usecols":["int1"]}'
                           % BASE_DIR,
             expected=dict(
                 rvalue=Quantity([1, 2, 3], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=1
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds-csv:%s/res/file-csv::["int1"],'
                           '{"usecols":["int1"]}' % BASE_DIR,
             expected=dict(
                 rvalue=Quantity([1, 2, 3], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=1
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds-csv:%s/res/file-csv::["int1"],[0],'
                           '{"usecols":["int1"]}' % BASE_DIR,
             expected=dict(
-                rvalue=Quantity([1], 'dimensionless'),
+                rvalue=Quantity(1, 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=0
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds-csv:{}/res/file-csv::["int1"],[1,3]'.format(
                 BASE_DIR),
             expected=dict(
                 rvalue=Quantity([2, 3], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=1
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["int1"]'.format(BASE_DIR),
             expected=dict(
                 rvalue=Quantity([1, 2, 3], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=1
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["int1","int2"]'.format(
                 BASE_DIR),
             expected=dict(
                 rvalue=Quantity([[1, 4], [2, 5], [3, 6]], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=2
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["float1"]'.format(BASE_DIR),
             expected=dict(
                 rvalue=Quantity([1.2, 3.4, 5.6], 'dimensionless'),
                 type=DataType.Float
-            ))
+            ),
+            expected_dim=1
+            )
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:{}/res/file.csv::["float1"],[0]'.format(
+                BASE_DIR),
+            expected=dict(
+                rvalue=Quantity(1.2, 'dimensionless'),
+                type=DataType.Float
+            ),
+            expected_dim=0
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["float1","float2"]'.format(
                 BASE_DIR),
@@ -99,47 +124,78 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
                 rvalue=Quantity([[1.2, 1.2], [3.4, 2.3], [5.6, 3.4]],
                                 'dimensionless'),
                 type=DataType.Float
-            ))
+            ),
+            expected_dim=2
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["string1"]'.format(BASE_DIR),
             expected=dict(
                 rvalue=['a', 'b', 'c'],
                 type=DataType.String
-            ))
+            ),
+            expected_dim=1
+            )
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:{}/res/file.csv::["string1"],[0]'.format(
+                BASE_DIR),
+            expected=dict(
+                rvalue='a',
+                type=DataType.String
+            ),
+            expected_dim=0
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["string1","string2"]'.format(
                 BASE_DIR),
             expected=dict(
                 rvalue=[['a', 'd'], ['b', 'e'], ['c', 'f']],
                 type=DataType.String
-            ))
+            ),
+            expected_dim=2
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["bool1"]'.format(BASE_DIR),
             expected=dict(
                 rvalue=[True, True, False],
                 type=DataType.Boolean
-            ))
+            ),
+            expected_dim=1
+            )
+@insertTest(helper_name="read_attr",
+            attr_fullname='pds:{}/res/file.csv::["bool1"],[0]'.format(BASE_DIR),
+            expected=dict(
+                rvalue=True,
+                type=DataType.Boolean
+            ),
+            expected_dim=0
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["bool1","bool2"]'.format(
                 BASE_DIR),
             expected=dict(
                 rvalue=[[True, False], [True, False], [False, True]],
                 type=DataType.Boolean
-            ))
+            ),
+            expected_dim=2
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["int1","int2"],[0]'.format(
                 BASE_DIR),
             expected=dict(
                 rvalue=Quantity([1, 4], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=1
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["int1","int2"],[1,3]'.format(
                 BASE_DIR),
             expected=dict(
                 rvalue=Quantity([[2, 5], [3, 6]], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=2
+            )
 # Mixed types
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["int1","float1"]'.format(
@@ -148,14 +204,18 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
                 rvalue=Quantity([[1., 1.2], [2., 3.4], [3., 5.6]],
                                 'dimensionless'),
                 type=DataType.Float
-            ))
+            ),
+            expected_dim=2
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::["int1","string1"]'.format(
                 BASE_DIR),
             expected=dict(
                 rvalue=[['1', 'a'], ['2', 'b'], ['3', 'c']],
                 type=DataType.String
-            ))
+            ),
+            expected_dim=2
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.csv::'.format(
                 BASE_DIR),
@@ -164,7 +224,9 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
                         ['2', '5', '3.4', '2.3', 'b', 'e', 'True', 'False'],
                         ['3', '6', '5.6', '3.4', 'c', 'f', 'False', 'True']],
                 type=DataType.String
-            ))
+            ),
+            expected_dim=2
+            )
 # =========================================================================
 # Tests of XMLHandler
 # =========================================================================
@@ -173,51 +235,65 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
             expected=dict(
                 rvalue=Quantity([1, 2, 3], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=1
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.xls::"Sheet",["int1"]'.format(
                 BASE_DIR),
             expected=dict(
                 rvalue=Quantity([1, 2, 3], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=1
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.xls::"Sheet",["int1"],[2]'.format(
                 BASE_DIR),
             expected=dict(
-                rvalue=Quantity([3], 'dimensionless'),
+                rvalue=Quantity(3, 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=0
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.xls::"",["int1"]'.format(
                 BASE_DIR),
             expected=dict(
                 rvalue=Quantity([1, 2, 3], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=1
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:{}/res/file.xls::'
                           '"Sheet",["int1","int2"]'.format(BASE_DIR),
             expected=dict(
                 rvalue=Quantity([[1, 4], [2, 5], [3, 6]], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=2
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:%s/res/file.xls::"Sheet",{"parse_cols":"A:B"}'
                           % BASE_DIR,
             expected=dict(
                 rvalue=Quantity([[1, 4], [2, 5], [3, 6]], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=2
+            )
 @insertTest(helper_name="read_attr",
             attr_fullname='pds:%s/res/file.xls::{"parse_cols":"A:B"}'
                           % BASE_DIR,
             expected=dict(
                 rvalue=Quantity([[1, 4], [2, 5], [3, 6]], 'dimensionless'),
                 type=DataType.Integer
-            ))
+            ),
+            expected_dim=2
+            )
 class PandasAttributeTestCase(unittest.TestCase):
-    def read_attr(self, attr_fullname, expected={}):
+    def read_attr(self, attr_fullname, expected={}, expected_dim=None):
         a = taurus.Attribute(attr_fullname)
         read_value = a.read()
 
@@ -234,10 +310,15 @@ class PandasAttributeTestCase(unittest.TestCase):
                 msg = ('The attribute "{}" does not provide info on {}'
                        .format(attr_fullname, k))
                 self.fail(msg)
-            msg = ('{} for "{}" should be {} (got {})'.format(
+            msg = ('{} for "{}" should be "{}" (got {})'.format(
                 attr_fullname, k, exp, got))
 
             self.__assertValidValue(exp, got, msg)
+
+        if expected_dim is not None:
+            msg = ('The attribute "{}" dimension should be "{}", (got {})'
+                   .format(attr_fullname, expected_dim, a.data_format))
+            self.assertEqual(a.data_format, expected_dim, msg)
 
     def __assertValidValue(self, exp, got, msg):
         # if we are dealing with quantities, use the magnitude for comparing

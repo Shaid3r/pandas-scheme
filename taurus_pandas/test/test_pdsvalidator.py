@@ -146,5 +146,6 @@ class PandasAttrValidatorTestCase(AbstractNameValidatorTestCase,
                                   unittest.TestCase):
     validator = PandasAttributeNameValidator
 
+
 if __name__ == "__main__":
     unittest.main()
