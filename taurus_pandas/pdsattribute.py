@@ -34,7 +34,7 @@ from taurus.core.taurusattribute import TaurusAttribute
 from taurus.core.taurusbasetypes import (DataType,
                                          DataFormat,
                                          TaurusAttrValue,
-                                         TaurusTimeVal)
+                                         TaurusTimeVal, TaurusEventType)
 from taurus.external.pint import Quantity
 from taurus_pandas.pdshandlers import schemesMap
 
@@ -67,6 +67,13 @@ class PandasAttribute(TaurusAttribute):
         self.handler = schemesMap[groups['scheme']]()
         self._attr_name = groups.get("attrname")
         self._last_value = None
+
+        wantpolling = not self.isUsingEvents()
+        haspolling = self.isPollingEnabled()
+        if wantpolling:
+            self._activatePolling()
+        elif haspolling and not wantpolling:
+            self.disablePolling()
 
     def read(self, cache=True):
         """Returns the value of the attribute.
@@ -135,14 +142,17 @@ class PandasAttribute(TaurusAttribute):
 
         return value
 
+    def poll(self):
+        v = self.read(cache=False)
+        self.fireEvent(TaurusEventType.Periodic, v)
+
+    def isUsingEvents(self):
+        return False
+
 # -----------------------------------------------------------------------------
     def encode(self, value):
         # TODO: implement it if you want to support writable attributes
         return value
-
-    def poll(self):
-        # TODO: implement it if you want to support writable attributes
-        pass
 
     def isWritable(self, cache=True):
         # TODO: implement it if you want to support writable attributes
@@ -151,10 +161,6 @@ class PandasAttribute(TaurusAttribute):
     def write(self, value, with_read=True):
         # TODO: implement it if you want to support writable attributes
         raise TaurusException('Attributes are read-only')
-
-    def isUsingEvents(self):
-        # TODO: implement it if you want to support writable attributes
-        return False
 
     def _subscribeEvents(self):
         # TODO: implement it if you want to support writable attributes
