@@ -162,14 +162,6 @@ class PandasAttribute(TaurusAttribute):
         # TODO: implement it if you want to support writable attributes
         raise TaurusException('Attributes are read-only')
 
-    def _subscribeEvents(self):
-        # TODO: implement it if you want to support writable attributes
-        pass
-
-    def _unsubscribeEvents(self):
-        # TODO: implement it if you want to support writable attributes
-        pass
-
 
 if __name__ == "__main__":
     import os
